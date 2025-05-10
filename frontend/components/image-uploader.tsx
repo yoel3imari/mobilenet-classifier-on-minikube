@@ -6,6 +6,7 @@ import { useState, useRef } from "react"
 import { X, Upload } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
+import { Progress } from "@/components/ui/progress"
 import { ImagePreviewModal } from "./image-preview-modal"
 import { useToast } from "@/hooks/use-toast"
 
@@ -13,14 +14,18 @@ type UploadedImage = {
   id: string
   url: string
   name: string
+  status: "pending" | "uploading" | "completed" | "error"
+  progress: number
 }
 
 export function ImageUploader() {
-  const [images, setImages] = useState<UploadedImage[]>([])
+  const [images, setImages] = useState<UploadedImage[] | UpdatedImages[]>([])
   const [isDragging, setIsDragging] = useState(false)
   const [selectedImage, setSelectedImage] = useState<UploadedImage | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const { toast } = useToast()
+  const [isUploading, setIsUploading] = useState(false)
+  const [overallProgress, setOverallProgress] = useState(0)
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files
@@ -67,6 +72,8 @@ export function ImageUploader() {
           id: crypto.randomUUID(),
           url: e.target?.result as string,
           name: file.name,
+          status: "pending",
+          progress: 0,
         }
         setImages((prev) => [...prev, newImage])
       }
@@ -88,6 +95,79 @@ export function ImageUploader() {
 
   const closePreviewModal = () => {
     setSelectedImage(null)
+  }
+
+  const handleUploadAll = async () => {
+    if (images.length === 0) {
+      toast({
+        title: "No images to upload",
+        description: "Please add images before uploading.",
+        variant: "destructive",
+      })
+      return
+    }
+
+    setIsUploading(true)
+    setOverallProgress(0)
+
+    // Create a copy of images to update their progress
+    const updatedImages = [...images].map((img) => ({ ...img, status: "uploading", progress: 0 }))
+    setImages(updatedImages)
+
+    // Track completed uploads
+    let completedUploads = 0
+
+    // Process each image
+    for (let i = 0; i < updatedImages.length; i++) {
+      const image = updatedImages[i]
+
+      try {
+        // Simulate upload with progress updates
+        for (let progress = 0; progress <= 100; progress += 5) {
+          // Update this image's progress
+          updatedImages[i] = {
+            ...updatedImages[i],
+            progress,
+            status: progress === 100 ? "completed" : "uploading",
+          }
+
+          // Update state
+          setImages([...updatedImages])
+
+          // Calculate and update overall progress
+          const totalProgress = updatedImages.reduce((sum, img) => sum + img.progress, 0)
+          const overallPercent = Math.floor((totalProgress / (updatedImages.length * 100)) * 100)
+          setOverallProgress(overallPercent)
+
+          // Simulate network delay
+          
+        }
+
+        completedUploads++
+      } catch (error) {
+        // Handle error
+        updatedImages[i] = {
+          ...updatedImages[i],
+          status: "error",
+          progress: 0,
+        }
+
+        setImages([...updatedImages])
+
+        toast({
+          title: "Upload failed",
+          description: `Failed to upload ${image.name}`,
+          variant: "destructive",
+        })
+      }
+    }
+
+    setIsUploading(false)
+
+    toast({
+      title: "Upload complete",
+      description: `Successfully uploaded ${completedUploads} of ${images.length} images.`,
+    })
   }
 
   return (
@@ -143,6 +223,14 @@ export function ImageUploader() {
                     alt={image.name}
                     className="w-full h-full object-cover transition-transform group-hover:scale-105"
                   />
+                  {image.status === "uploading" && (
+                    <div className="absolute bottom-0 left-0 right-0 bg-background/80 p-1">
+                      <Progress value={image.progress} className="h-1" />
+                    </div>
+                  )}
+                  {image.status === "completed" && (
+                    <div className="absolute bottom-0 right-0 bg-green-500 text-white text-xs p-1 rounded-tl-md">✓</div>
+                  )}
                 </div>
                 <button
                   onClick={() => removeImage(image.id)}
@@ -153,6 +241,22 @@ export function ImageUploader() {
                 <p className="text-xs mt-1 truncate">{image.name}</p>
               </div>
             ))}
+          </div>
+
+          <div className="mt-6 space-y-4">
+            {isUploading && (
+              <div className="space-y-2">
+                <div className="flex justify-between text-sm">
+                  <span>Overall progress</span>
+                  <span>{overallProgress}%</span>
+                </div>
+                <Progress value={overallProgress} className="h-2" />
+              </div>
+            )}
+
+            <Button onClick={handleUploadAll} disabled={isUploading || images.length === 0} className="w-full">
+              {isUploading ? "Uploading..." : "Upload All Images"}
+            </Button>
           </div>
         </div>
       )}
