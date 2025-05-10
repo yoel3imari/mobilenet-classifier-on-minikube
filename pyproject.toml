@@ -1,0 +1,14 @@
+[project]
+name = "mobilenet-on-minikube"
+version = "0.1.0"
+description = "MobileNet + FastAPI image Classifier on minikube"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "fastapi>=0.115.12",
+    "pillow>=11.2.1",
+    "numpy<2",
+    "tensorflow==2.10.0",
+    "uvicorn>=0.34.2",
+    "python-multipart",
+]
