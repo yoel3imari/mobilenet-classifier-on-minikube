@@ -1,0 +1,10 @@
+README.md
+pyproject.toml
+app/__init__.py
+app/main.py
+app/model.py
+mobilenet_classifier.egg-info/PKG-INFO
+mobilenet_classifier.egg-info/SOURCES.txt
+mobilenet_classifier.egg-info/dependency_links.txt
+mobilenet_classifier.egg-info/requires.txt
+mobilenet_classifier.egg-info/top_level.txt

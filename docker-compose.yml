@@ -1,0 +1,25 @@
+services:
+  backend:
+    build:
+      context: ./backend
+    container_name: mobilenet-backend
+    ports:
+      - "5000:5000"
+    networks:
+      - mobilenet
+
+  frontend:
+    build:
+      context: ./frontend
+    container_name: mobilenet-frontend
+    ports:
+      - "3000:3000"
+    environment:
+      NEXT_PUBLIC_API_URL: http://backend:5000
+    depends_on:
+      - backend
+    networks:
+      - mobilenet
+
+networks:
+  mobilenet:

@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mobilenet-classifier
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: mobilenet-classifier
+  template:
+    metadata:
+      labels:
+        app: mobilenet-classifier
+    spec:
+      containers:
+      - name: mobilenet-classifier
+        image: mobilenet-classifier:latest
+        ports:
+        - containerPort: 5000
+        resources:
+          limits:
+            memory: "1Gi"
+            cpu: "1"
+          requests:
+            memory: "512Mi"
+            cpu: "0.5"
