@@ -12,9 +12,9 @@ COPY pyproject.toml ./
 
 RUN uv venv
 
-RUN uv pip install .
+RUN uv pip install --system --editable .
 
 COPY . .
 
 EXPOSE 5000
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "5000"]
+CMD ["python", "-m", "uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "5000"]
