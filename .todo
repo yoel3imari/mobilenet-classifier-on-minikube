@@ -1,0 +1,4 @@
+minikube stop
+minikube delete
+minikube start --disk-size=40g --memory=6g
+
