@@ -119,14 +119,5 @@ minikube delete
 
 ## License
 ```
-This project is licensed under the MIT License.
-
-This README now includes:
-- Complete setup instructions- Development guidelines for both frontend and backend
-- Deployment steps for Minikube
-- Resource requirements and monitoring information
-- API documentation
-- Cleanup instructions
-
-The instructions are based on the actual configuration files and deployment scripts found in your project.
+Copyright (c) 2025 yoel3imari
 ```
