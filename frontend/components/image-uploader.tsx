@@ -8,9 +8,28 @@ import { Card, CardContent } from "@/components/ui/card";
 import { ImagePreviewModal } from "./image-preview-modal";
 import { useToast } from "@/hooks/use-toast";
 
+interface Prediction {
+  label: string;
+  descrip: string;
+  proba: number;
+}
+
+interface UploadedImage {
+  id: string;
+  url: string;
+  name: string;
+  file: File;
+  status: 'pending' | 'completed' | 'error';
+  predictions: Prediction[] | null;
+  isUploading: boolean;
+}
+
+
+const MAX_FILE_SIZE = 5 * 1024 * 1024;
+
 export function ImageUploader() {
-  const [images, setImages] = useState<any[]>([]);
-  const [selectedImage, setSelectedImage] = useState<any>(null);
+  const [images, setImages] = useState<UploadedImage[]>([]);
+  const [selectedImage, setSelectedImage] = useState<UploadedImage | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
@@ -47,11 +66,23 @@ export function ImageUploader() {
       return;
     }
 
+    if (file.size > MAX_FILE_SIZE) {
+      toast({
+        title: "File too large",
+        description: `${file.name} exceeds the maximum size of 5MB.`,
+        variant: "destructive",
+      });
+      return;
+    }
+
     const reader = new FileReader();
     reader.onload = (e) => {
-      const newImage = {
+      const result = e.target?.result;
+      if (typeof result !== 'string') return;
+
+      const newImage: UploadedImage = {
         id: crypto.randomUUID(),
-        url: e.target?.result as string,
+        url: result,
         name: file.name,
         file,
         status: "pending",
@@ -60,12 +91,19 @@ export function ImageUploader() {
       };
       setImages((prev) => [...prev, newImage]);
     };
+    reader.onerror = () => {
+      toast({
+        title: "Error reading file",
+        description: `Failed to read ${file.name}`,
+        variant: "destructive",
+      });
+    };
     reader.readAsDataURL(file);
   };
 
   const removeImage = (id: string) => setImages((prev) => prev.filter((img) => img.id !== id));
   const openFileInput = () => fileInputRef.current?.click();
-  const openPreviewModal = (image: any) => setSelectedImage(image);
+  const openPreviewModal = (image: UploadedImage) => setSelectedImage(image);
   const closePreviewModal = () => setSelectedImage(null);
 
   const handleUpload = async (imageId: string) => {
@@ -82,10 +120,19 @@ export function ImageUploader() {
       const formData = new FormData();
       formData.append("file", image.file);
 
-      const response = await fetch("http://localhost:5000/predict", {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+      if (!apiUrl) {
+        throw new Error("API URL is not configured");
+      }
+
+      const response = await fetch(`${apiUrl}/predict`, {
         method: "POST",
         body: formData,
       });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
 
       const result = await response.json();
 
@@ -102,9 +149,10 @@ export function ImageUploader() {
         )
       );
     } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
       toast({
         title: "Upload failed",
-        description: `Failed to upload ${image.name}`,
+        description: `Failed to upload ${image.name}: ${errorMessage}`,
         variant: "destructive",
       });
       setImages((prev) =>

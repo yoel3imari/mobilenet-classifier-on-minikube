@@ -1,0 +1,42 @@
+# Dependencies
+node_modules
+.pnpm-store
+.npm
+.yarn
+
+# Build outputs
+dist
+build
+.next
+out
+
+# Development files
+.git
+.gitignore
+README.md
+*.log
+.env.local
+.env.development
+.env.test
+
+# Editor directories and files
+.idea
+.vscode
+*.swp
+*.swo
+.DS_Store
+
+# Testing
+coverage
+__tests__
+*.test.js
+*.spec.js
+
+# Debug files
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Cache directories
+.cache
+.parcel-cache

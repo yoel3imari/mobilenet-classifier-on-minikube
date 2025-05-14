@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend-deployment
+  labels:
+    app: backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: backend
+  template:
+    metadata:
+      labels:
+        app: backend
+    spec:
+      containers:
+      - name: backend
+        image: yusef/mobilenet-backend:latest # Replace with your actual image name/tag
+        imagePullPolicy: IfNotPresent # Or "Always" if pulling from a remote registry and want to ensure latest
+        ports:
+        - containerPort: 5000

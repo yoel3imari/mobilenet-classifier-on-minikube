@@ -1,4 +1,34 @@
-minikube stop
-minikube delete
-minikube start --disk-size=40g --memory=6g
 
+minikube stop
+
+delete current cluster:
+  minikube delete
+
+to start minikube deployment run:
+  minikube start --disk-size=12g --memory=4g
+
+
+minikube addons enable ingress
+
+
+push service to minikube:
+  eval $(minikube docker-env)
+  docker build -t mobilenet-backend:latest ./backend
+  docker build -t mobilenet-frontend:latest ./frontend
+
+  kubectl apply -f k8s/backend-deployment.yml
+  kubectl apply -f k8s/frontend-deployment.yml
+  kubectl apply -f k8s/ingress.yml
+
+  kubectl get pods
+  kubectl get services
+
+  minikube ip
+
+  sudo echo "$(minikube ip) mobilenet.local" | sudo tee -a /etc/hosts
+  kubectl get pods -w
+
+  kubectl logs -l app=mobilenet-frontend
+  kubectl logs -l app=mobilenet-backend
+
+  kubectl top pods
