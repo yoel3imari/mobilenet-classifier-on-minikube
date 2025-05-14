@@ -9,7 +9,7 @@ spec:
   - host: mobilenet.local
     http:
       paths:
-      - path: /api(/|$)(.*) # Matches /api or /api/anything
+      - path: /api # Matches /api or /api/anything
         pathType: Prefix
         backend:
           service:

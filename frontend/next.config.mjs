@@ -9,6 +9,8 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
+  output: 'standalone',
+  assetPrefix: '/',
 }
 
 export default nextConfig

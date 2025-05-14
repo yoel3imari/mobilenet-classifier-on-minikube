@@ -16,7 +16,7 @@ push service to minikube:
   docker build -t mobilenet-backend:latest ./backend
   docker build -t mobilenet-frontend:latest ./frontend
 
-  kubectl apply -f k8s/backend-deployment.yml
+  clea.yml
   kubectl apply -f k8s/frontend-deployment.yml
   kubectl apply -f k8s/ingress.yml
 

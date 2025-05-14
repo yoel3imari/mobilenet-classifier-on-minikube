@@ -8,10 +8,10 @@ RUN corepack enable && corepack prepare pnpm@latest --activate
 WORKDIR /app
 
 # Copy dependency files
-COPY pnpm-lock.yaml package.json ./
+COPY pnpm-lock.yaml* package.json* ./
 
 # Install dependencies
-RUN pnpm install --frozen-lockfile
+RUN pnpm install
 
 # Copy all source code
 COPY . .
@@ -22,10 +22,13 @@ RUN pnpm build
 # 2. Production runner
 FROM node:22-slim AS runner
 
-WORKDIR /app
-
 # Install pnpm again (lightweight) to run the app
 RUN corepack enable && corepack prepare pnpm@latest --activate
+
+WORKDIR /app
+
+ENV NODE_ENV=production
+ENV PORT=3000
 
 # Copy built assets
 COPY --from=builder /app/public ./public
@@ -38,6 +41,8 @@ COPY --from=builder /app/next.config.mjs ./next.config.mjs
 COPY --from=builder /app/tailwind.config.ts ./tailwind.config.ts
 COPY --from=builder /app/postcss.config.mjs ./postcss.config.mjs
 COPY --from=builder /app/styles ./styles
+COPY --from=builder /app/hooks ./hooks
+COPY --from=builder /app/components ./components
 
 # Expose port
 EXPOSE 3000
