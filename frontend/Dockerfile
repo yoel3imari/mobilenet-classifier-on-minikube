@@ -16,6 +16,8 @@ RUN pnpm install
 # Copy all source code
 COPY . .
 
+COPY .env.production .env.production
+
 # Build the Next.js app
 RUN pnpm build
 
