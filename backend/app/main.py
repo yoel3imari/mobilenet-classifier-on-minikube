@@ -12,12 +12,12 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-@app.post("/predict")
+@app.post("/api/predict")
 async def predict(file: UploadFile = File(...)):
     image_bytes = await file.read()
     result = predict_image(image_bytes)
     return {"predictions": result}
 
-@app.get("/")
+@app.get("/api")
 def root():
     return {"message": "Hello World"}

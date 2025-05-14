@@ -60,11 +60,16 @@ minikube addons enable ingress
 ```bash
 eval $(minikube docker-env)
 
-docker-compose build
+docker build -t yusef/mobilenet-backend:latest ./backend
+docker build -t yusef/mobilenet-frontend:latest ./frontend
 
-kubectl apply -f k8s/backend-deployment.yml
-kubectl apply -f k8s/frontend-deployment.yml
-kubectl apply -f k8s/ingress.yml
+kubectl apply -f k8s/backend-deployment.yaml
+kubectl apply -f k8s/backend-service.yaml
+
+kubectl apply -f k8s/frontend-deployment.yaml
+kubectl apply -f k8s/frontend-service.yaml
+
+kubectl apply -f k8s/ingress.yaml
 ```
 
 5. Configure local DNS
