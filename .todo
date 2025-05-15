@@ -1,34 +1,38 @@
 
-minikube stop
+  minikube stop
 
-delete current cluster:
   minikube delete
-
-to start minikube deployment run:
+  
   minikube start --disk-size=12g --memory=4g
 
+  minikube addons enable ingress
 
-minikube addons enable ingress
-
-
-push service to minikube:
   eval $(minikube docker-env)
-  docker build -t mobilenet-backend:latest ./backend
-  docker build -t mobilenet-frontend:latest ./frontend
+  docker build -t yusef/mobilenet-backend:latest ./backend
+  docker build -t yusef/mobilenet-frontend:latest ./frontend
 
-  clea.yml
-  kubectl apply -f k8s/frontend-deployment.yml
-  kubectl apply -f k8s/ingress.yml
-
-  kubectl get pods
-  kubectl get services
-
+  # add minikube @IP to hosts
   minikube ip
-
+  cat /etc/hosts
+  # if @IP is not present add it
   sudo echo "$(minikube ip) mobilenet.local" | sudo tee -a /etc/hosts
-  kubectl get pods -w
 
+  kubectl apply -f k8s/frontend-deployment.yaml
+  kubectl apply -f k8s/backend-deployment.yaml
+  kubectl apply -f k8s/frontend-service.yaml
+  kubectl apply -f k8s/backend-service.yaml
+  kubectl apply -f k8s/ingress.yaml
+
+
+  # restart if images rebuilt
+  kubectl rollout restart deployment backend-deployment
+  kubectl rollout restart deployment frontend-deployment
+
+  # debugging
+  kubectl get pods
+  kubectl get pods -A | grep ingress
+  kubectl get services
+  kubectl get pods -w
   kubectl logs -l app=mobilenet-frontend
   kubectl logs -l app=mobilenet-backend
-
   kubectl top pods
