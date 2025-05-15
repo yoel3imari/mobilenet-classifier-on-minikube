@@ -42,8 +42,8 @@ A web application that performs real-time image classification using MobileNet n
 
 1. Clone the repository:
 ```bash
-git clone <your-repository-url>
-cd mobilenet-on-minikube
+git clone https://github.com/yoel3imari/mobilenet-classifier-on-minikube.git
+cd mobilenet-classifier-on-minikube
 ```
 
 2. Start Minikube with sufficient resources:
