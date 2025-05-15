@@ -13,8 +13,8 @@ minikube addons enable ingress
 
 push service to minikube:
   eval $(minikube docker-env)
-  docker build -t mobilenet-backend:latest ./backend
-  docker build -t mobilenet-frontend:latest ./frontend
+  docker build -t yusef/mobilenet-backend:latest ./backend
+  docker build -t yusef/mobilenet-frontend:latest ./frontend
 
   clea.yml
   kubectl apply -f k8s/frontend-deployment.yml
