@@ -79,6 +79,8 @@ echo "$(minikube ip) mobilenet.local" | sudo tee -a /etc/hosts
 
 6. Verify deployment
 
+Check `http://mobilenet.local` on your browser
+
 ```bash
 kubectl get pods
 
