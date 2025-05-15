@@ -2,14 +2,28 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: mobilenet-ingress
-  annotations:
-    nginx.ingress.kubernetes.io/rewrite-target: /$2 # For backend /api path rewrite
+  # annotations:
+  #   nginx.ingress.kubernetes.io/rewrite-target: /$2 # For backend /api path rewrite
 spec:
   rules:
   - host: mobilenet.local
     http:
       paths:
-      - path: /api # Matches /api or /api/anything
+      - path: /_next
+        pathType: Prefix
+        backend:
+          service:
+            name: frontend-service
+            port:
+              number: 3000
+      - path: /favicon.ico
+        pathType: Exact
+        backend:
+          service:
+            name: frontend-service
+            port:
+              number: 3000
+      - path: /api
         pathType: Prefix
         backend:
           service:
@@ -23,3 +37,4 @@ spec:
             name: frontend-service
             port:
               number: 3000
+      

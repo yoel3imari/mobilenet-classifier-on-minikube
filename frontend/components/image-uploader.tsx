@@ -2,11 +2,12 @@
 
 import type React from "react";
 import { useState, useRef } from "react";
-import { X, Upload, Check } from "lucide-react";
+import { X, Upload, Check, LoaderCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { ImagePreviewModal } from "./image-preview-modal";
 import { useToast } from "@/hooks/use-toast";
+import { generateUUID } from "@/lib/utils";
 
 interface Prediction {
   label: string;
@@ -19,20 +20,22 @@ interface UploadedImage {
   url: string;
   name: string;
   file: File;
-  status: 'pending' | 'completed' | 'error';
+  status: "pending" | "completed" | "error";
   predictions: Prediction[] | null;
   isUploading: boolean;
 }
-
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024;
 
 export function ImageUploader() {
   const [images, setImages] = useState<UploadedImage[]>([]);
-  const [selectedImage, setSelectedImage] = useState<UploadedImage | null>(null);
+  const [selectedImage, setSelectedImage] = useState<UploadedImage | null>(
+    null
+  );
   const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
+  const [uploading, setUploading] = useState(false);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -78,10 +81,10 @@ export function ImageUploader() {
     const reader = new FileReader();
     reader.onload = (e) => {
       const result = e.target?.result;
-      if (typeof result !== 'string') return;
+      if (typeof result !== "string") return;
 
       const newImage: UploadedImage = {
-        id: crypto.randomUUID(),
+        id: generateUUID(),
         url: result,
         name: file.name,
         file,
@@ -101,7 +104,8 @@ export function ImageUploader() {
     reader.readAsDataURL(file);
   };
 
-  const removeImage = (id: string) => setImages((prev) => prev.filter((img) => img.id !== id));
+  const removeImage = (id: string) =>
+    setImages((prev) => prev.filter((img) => img.id !== id));
   const openFileInput = () => fileInputRef.current?.click();
   const openPreviewModal = (image: UploadedImage) => setSelectedImage(image);
   const closePreviewModal = () => setSelectedImage(null);
@@ -121,10 +125,16 @@ export function ImageUploader() {
       formData.append("file", image.file);
 
       const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+
+      console.log(apiUrl);
+
+      console.log(formData);
+
       if (!apiUrl) {
         throw new Error("API URL is not configured");
       }
 
+      setUploading(true);
       const response = await fetch(`${apiUrl}/predict`, {
         method: "POST",
         body: formData,
@@ -135,6 +145,8 @@ export function ImageUploader() {
       }
 
       const result = await response.json();
+
+      setUploading(false);
 
       setImages((prev) =>
         prev.map((img) =>
@@ -149,7 +161,8 @@ export function ImageUploader() {
         )
       );
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+      const errorMessage =
+        error instanceof Error ? error.message : "Unknown error occurred";
       toast({
         title: "Upload failed",
         description: `Failed to upload ${image.name}: ${errorMessage}`,
@@ -157,7 +170,9 @@ export function ImageUploader() {
       });
       setImages((prev) =>
         prev.map((img) =>
-          img.id === imageId ? { ...img, status: "error", isUploading: false } : img
+          img.id === imageId
+            ? { ...img, status: "error", isUploading: false }
+            : img
         )
       );
     }
@@ -179,7 +194,9 @@ export function ImageUploader() {
               <div className="bg-muted rounded-full p-3">
                 <Upload className="h-8 w-8 text-muted-foreground" />
               </div>
-              <p className="text-lg font-medium">Drag and drop a JPEG image here</p>
+              <p className="text-lg font-medium">
+                Drag and drop a JPEG image here
+              </p>
               <Button onClick={openFileInput} variant="outline">
                 Select File
               </Button>
@@ -200,12 +217,19 @@ export function ImageUploader() {
           <h2 className="text-xl font-semibold">Uploaded Images</h2>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
             {images.map((image) => (
-              <div key={image.id} className="relative space-y-2 p-2 shadow rounded-xl">
+              <div
+                key={image.id}
+                className="relative space-y-2 p-2 shadow rounded-xl"
+              >
                 <div
                   className="aspect-square border rounded-md overflow-hidden cursor-pointer"
                   onClick={() => openPreviewModal(image)}
                 >
-                  <img src={image.url} alt={image.name} className="w-full h-full object-cover" />
+                  <img
+                    src={image.url}
+                    alt={image.name}
+                    className="w-full h-full object-cover"
+                  />
                 </div>
 
                 <button
@@ -232,6 +256,7 @@ export function ImageUploader() {
                   disabled={image.isUploading || image.status === "completed"}
                   className="w-full"
                 >
+                  {uploading && <LoaderCircle className="animate-spin" />}
                   {image.isUploading ? "Uploading..." : "Upload Image"}
                 </Button>
               </div>

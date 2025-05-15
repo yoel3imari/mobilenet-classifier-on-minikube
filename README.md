@@ -60,11 +60,16 @@ minikube addons enable ingress
 ```bash
 eval $(minikube docker-env)
 
+docker build -t yusef/mobilenet-backend:latest ./backend
+docker build -t yusef/mobilenet-frontend:latest ./frontend
 
+kubectl apply -f k8s/backend-deployment.yaml
+kubectl apply -f k8s/backend-service.yaml
 
-kubectl apply -f k8s/backend-deployment.yml
-kubectl apply -f k8s/frontend-deployment.yml
-kubectl apply -f k8s/ingress.yml
+kubectl apply -f k8s/frontend-deployment.yaml
+kubectl apply -f k8s/frontend-service.yaml
+
+kubectl apply -f k8s/ingress.yaml
 ```
 
 5. Configure local DNS
@@ -114,14 +119,5 @@ minikube delete
 
 ## License
 ```
-This project is licensed under the MIT License.
-
-This README now includes:
-- Complete setup instructions- Development guidelines for both frontend and backend
-- Deployment steps for Minikube
-- Resource requirements and monitoring information
-- API documentation
-- Cleanup instructions
-
-The instructions are based on the actual configuration files and deployment scripts found in your project.
+Copyright (c) 2025 yoel3imari
 ```
