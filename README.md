@@ -60,7 +60,7 @@ minikube addons enable ingress
 ```bash
 eval $(minikube docker-env)
 
-docker-compose build
+
 
 kubectl apply -f k8s/backend-deployment.yml
 kubectl apply -f k8s/frontend-deployment.yml
